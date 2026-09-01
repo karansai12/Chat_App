@@ -10,11 +10,26 @@ import { CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 
+interface LoginFormData {
+    email: string;
+    password: string;
+}
+
 const LoginPage = () => {
     const router = useRouter();
-    const { register, handleSubmit } = useForm();
-    const onSubmit = () => {
-        console.log("success")
+    const { register, handleSubmit } = useForm<LoginFormData>();
+    const onSubmit = async (data: LoginFormData) => {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            console.error("Login failed:", err.error ?? response.statusText);
+            return;
+        }
+        router.push("/chat-page");
     }
     return (
         <TopDiv>
@@ -32,11 +47,11 @@ const LoginPage = () => {
                             <Input id="email" type="email" placeholder="Thor@gmail.com" required {...register("email")}/>
                             <Label htmlFor="password">Password</Label>
                             <Input id="password" type="password" placeholder="hammer" required {...register("password")}/>
+                            <Button type="submit">Login</Button>
                         </div>
                     </form>
                 </CardContent>
                 <CardFooter className="flex gap-2 justify-center items-center">
-                    <Button type="submit" >Login</Button>
                     <span onClick={() => router.push("/signup-page")} 
                     className="text-sm text-gray-500 cursor-pointer">
                         Dont hanv an Account Sign up

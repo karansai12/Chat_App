@@ -10,12 +10,30 @@ import { CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 
+interface SignupFormData {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+}
+
 const SignupPage = () => {
     const router = useRouter();
-    const { register, handleSubmit } = useForm();
-    const onSubmit = () => {
-        console.log("success")
+    const { register, handleSubmit } = useForm<SignupFormData>();
+
+    const onSubmit = async (data: SignupFormData) => {
+        const response = await fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        if (!response.ok) {
+            console.error("Signup failed:", response.statusText)
+        }else {
+            router.push("/login-page")
+        }
     }
+
     return (
         <TopDiv>
             <Card className="w-full max-w-sm">
@@ -29,22 +47,22 @@ const SignupPage = () => {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-6">
                             <Label htmlFor="name">User Name</Label>
-                            <Input id="name" type="text" placeholder="Thor" required {...register("name")}/>
+                            <Input id="name" type="text" placeholder="Thor" required {...register("name")} />
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" placeholder="Thor@gmail.com" required {...register("email")}/>
+                            <Input id="email" type="email" placeholder="Thor@gmail.com" required {...register("email")} />
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" placeholder="hammer" required {...register("password")}/>
+                            <Input id="password" type="password" placeholder="hammer" required {...register("password")} />
                             <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input id="confirmPassword" type="password" placeholder="hammer" required {...register("confirmPassword")}/>
+                            <Input id="confirmPassword" type="password" placeholder="hammer" required {...register("confirmPassword")} />
+                            <Button type="submit">Sign up</Button>
                         </div>
                     </form>
                 </CardContent>
                 <CardFooter className="flex gap-2 justify-center items-center">
-                    <Button type="submit">Sign up</Button>
-                    <span onClick={() => router.push("/login-page")} 
-                    className="text-sm text-gray-500 cursor-pointer">
+                    <span onClick={() => router.push("/login-page")}
+                        className="text-sm text-gray-500 cursor-pointer">
                         Already have an Account Login
-                        </span>
+                    </span>
                 </CardFooter>
             </Card>
         </TopDiv>
